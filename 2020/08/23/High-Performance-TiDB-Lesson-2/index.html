@@ -134,6 +134,12 @@
 <blockquote>
 <p>线程数增加到16后，tpmc有了将近1.5倍的提升</p>
 </blockquote>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">## threads&#x3D;64</span><br><span class="line">.&#x2F;go-tpc tpcc -H 192.168.199.227 -P 4000 -D tpcc --warehouses 8 run --time&#x3D;1m --threads&#x3D;64</span><br></pre></td></tr></table></figure>
+
+<p><img src="https://i.loli.net/2020/08/23/7VIi6n3km5QTEG4.png" alt="image-20200823234753978.png"></p>
+<blockquote>
+<p>线程数增加到64后，tpmc的提升不是很大</p>
+</blockquote>
 
 </article>
 
