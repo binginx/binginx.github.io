@@ -115,31 +115,44 @@
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">## 下载zip文件到主机，安装graphviz，解压zip，打开profile文件</span><br><span class="line">scp tidb@192.168.199.226:&#x2F;home&#x2F;tidb&#x2F;profile&#x2F;tidb-227-debug.zip .</span><br><span class="line">scp tidb@192.168.199.226:&#x2F;home&#x2F;tidb&#x2F;profile&#x2F;tidb-228-debug.zip .</span><br><span class="line">scp tidb@192.168.199.226:&#x2F;home&#x2F;tidb&#x2F;profile&#x2F;tidb-229-debug.zip .</span><br><span class="line">brew install graphviz</span><br><span class="line">go tool pprof -http&#x3D;:8080 profile</span><br><span class="line">go tool pprof -http&#x3D;:8080 heap</span><br><span class="line">go tool pprof -http&#x3D;:8080 mutex</span><br></pre></td></tr></table></figure>
 
 <ul>
-<li>192.168.199.227 profile</li>
+<li>192.168.199.227 Profile Graph</li>
 </ul>
 <p><img src="https://i.loli.net/2020/09/01/JU6MNekaQFn9Hsv.png" alt="image-20200901112929026.png"></p>
+<p>192.168.199.227 Profile Flame Graph</p>
+<p><img src="https://i.loli.net/2020/09/01/en814udypxw5Xsg.png" alt="image-20200901143624421.png"></p>
 <ul>
 <li>192.168.199.227 heap</li>
 </ul>
 <p><img src="https://i.loli.net/2020/09/01/P1rhDoBV9QOm47i.png" alt="image-20200901113102712.png"></p>
 <ul>
-<li>192.168.199.228 profile</li>
+<li>192.168.199.228 Profile Graph </li>
 </ul>
 <p><img src="https://i.loli.net/2020/09/01/uYMnscNQ6eT9bHi.png" alt="image-20200901113247030"></p>
+<ul>
+<li>192.168.199.228 Profile Flame Graph</li>
+</ul>
+<p><img src="https://i.loli.net/2020/09/01/YCtoKW4IPQrG2Ui.png" alt="image-20200901143900081.png"></p>
 <ul>
 <li><p>192.168.199.228 heap</p>
 <p><img src="https://i.loli.net/2020/09/01/ukPAbcgmFnZV1YS.png" alt="image-20200901113356567"></p>
 </li>
-<li><p>192.168.199.229 profile</p>
+<li><p>192.168.199.229 Profile Graph</p>
 <p><img src="https://i.loli.net/2020/09/01/eIrd43MZ8BED9qc.png" alt="image-20200901113558781"></p>
+</li>
+<li><p>192.168.199.229 Profile Flame Graph</p>
+<p><img src="https://i.loli.net/2020/09/01/o2jEKftOD5AyTRw.png" alt="image-20200901144027313.png"></p>
 </li>
 <li><p>192.168.199.229 heap</p>
 <p><img src="https://i.loli.net/2020/09/01/yUXk5PlJ8stvEY6.png" alt="image-20200901113625080"></p>
 </li>
 </ul>
+<h5 id="问题分析"><a href="#问题分析" class="headerlink" title="问题分析"></a>问题分析</h5><ul>
+<li>通过分析三台TiDB cpu的火焰图，发现server.(*Server).xxx的一系列方法耗时较长，这部分主要功能是解析执行sql</li>
+<li>通过分析三台TiDB heap的火焰图，发现tikv.(*copIteratorWorker).run.xxx的一系列方法占用heap较大</li>
+</ul>
 <h4 id="Profile-TiKV"><a href="#Profile-TiKV" class="headerlink" title="Profile TiKV"></a>Profile TiKV</h4><h5 id="测试数据-1"><a href="#测试数据-1" class="headerlink" title="测试数据"></a>测试数据</h5><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">## threads&#x3D;16</span><br><span class="line">.&#x2F;go-tpc tpcc -H 192.168.199.226 -P 3306 -D tpcc --warehouses 8 run --time&#x3D;1m --threads&#x3D;16</span><br></pre></td></tr></table></figure>
 
-<h5 id="使用dashboard生成svg文件"><a href="#使用dashboard生成svg文件" class="headerlink" title="使用dashboard生成svg文件"></a>使用dashboard生成svg文件</h5><ul>
+<h5 id="使用dashboard查看TiKV火焰图"><a href="#使用dashboard查看TiKV火焰图" class="headerlink" title="使用dashboard查看TiKV火焰图"></a>使用dashboard查看TiKV火焰图</h5><ul>
 <li>选中三个TiKV实例</li>
 </ul>
 <p><img src="https://i.loli.net/2020/09/01/6vsR4qmLSMxgAYr.png" alt="image-20200831233712358.png"></p>
@@ -147,6 +160,21 @@
 <li>分析完成</li>
 </ul>
 <p><img src="https://i.loli.net/2020/09/01/EVyjb2S9CcQLD7K.png" alt="image-20200831233945410.png"></p>
+<ul>
+<li>TiKV 192.168.199.227 Profile Flame Graph</li>
+</ul>
+<p><img src="https://i.loli.net/2020/09/01/fpKuq5B9FgAvYda.png" alt="image-20200901221848014.png"></p>
+<ul>
+<li><p>TiKV 192.168.199.228 Profile Flame Graph</p>
+<p><img src="https://i.loli.net/2020/09/01/MiOY8gByALWZKnU.png" alt="image-20200901222058713.png"></p>
+</li>
+<li><p>TiKV 192.168.199.229 Profile Flame Graph</p>
+<p><img src="https://i.loli.net/2020/09/01/EdB5hv6IZCFWaxs.png" alt="image-20200901222209645.png"></p>
+</li>
+</ul>
+<h5 id="问题分析-1"><a href="#问题分析-1" class="headerlink" title="问题分析"></a>问题分析</h5><ul>
+<li>通过分析三台TiKV cpu的火焰图，发现grpc-server、raftstore耗时较长</li>
+</ul>
 
 </article>
 
